@@ -2,6 +2,7 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const Chatkit = require('pusher-chatkit-server');
+const jwt = require('jsonwebtoken')
 
 const app = express()
 
@@ -31,7 +32,14 @@ app.post('/users', (req, res) => {
 
 app.post('/authenticate', (req, res) => {
   const authData = chatkit.authenticate({ userId: req.query.user_id })
-  res.status(authData.status).send(authData.body)
+  //res.status(authData.status).send(authData.body)
+  res.json({token: jwt.sign({
+    "instance": 'v1:us1:22e27933-0947-4417-b014-33448febbc22',
+    "iss": 'be768a30-64f5-4dd2-9bf2-9e370761d8a4:9VIdf8LtpNZ6gwD5b2StYHMXgkDFLQDg94lbS1paSxM=',
+    "iat": Math.round((new Date()).getTime() / 1000),
+    "exp": 600,
+    "sub": req.query.user_id
+  }, 'RESTFULAPIs', { algorithm: 'HS256'})});
 })
 
 const PORT = 3001
