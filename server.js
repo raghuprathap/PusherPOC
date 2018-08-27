@@ -3,7 +3,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const Chatkit = require('pusher-chatkit-server');
 const jwt = require('jsonwebtoken')
-
+const nodemailer = require('nodemailer');
 const app = express()
 
 const chatkit = new Chatkit.default({
@@ -40,6 +40,31 @@ app.post('/authenticate', (req, res) => {
     "exp": 600,
     "sub": req.query.user_id
   }, 'RESTFULAPIs', { algorithm: 'HS256'})});
+})
+
+app.post('/mail', (req, res) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'yourGmail@gmail.com',
+      pass: 'pass'
+    }
+  })
+  const mailOptions = {
+    from: req.body.fromEmail, // sender address
+    to: req.body.toEmail, // list of receivers
+    subject: req.body.subject, // Subject line
+    html: req.body.emailBody// plain text body
+  };
+  transporter.sendMail(mailOptions, function (err, info) {
+    if(err)
+      console.log(err)
+    else {
+      console.log(info);
+      res.status(200).send(info);
+    }
+      
+ });
 })
 
 const PORT = 3001
